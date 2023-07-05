@@ -1,6 +1,8 @@
 import signal
 import time
 import pygame
+# consider updating to gpiozero
+#  https://gpiozero.readthedocs.io/en/stable/migrating_from_rpigpio.html
 import RPi.GPIO as GPIO
 
 # The buttons on Pirate Audio are connected to pins 5, 6, 16 and 24
