@@ -18,6 +18,7 @@ GPIO.setup(BUTTONS, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
 # define sound object to play
 pygame.init()
+pygame.mixer.init()
 
 # setup function to customize button time and sounds
 def timer_sound(label, timer, sound):
