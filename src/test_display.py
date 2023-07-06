@@ -10,7 +10,7 @@ import ST7789
 disp = ST7789.ST7789(
         height=240,
         width=320,
-        rotation=180,
+        rotation=0,
         port=0,
         cs=1,
         dc=9,

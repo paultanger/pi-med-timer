@@ -5,6 +5,8 @@ import pygame
 #  https://gpiozero.readthedocs.io/en/stable/migrating_from_rpigpio.html
 import RPi.GPIO as GPIO
 
+pygame.init()
+
 # The buttons on Pirate Audio are connected to pins 5, 6, 16 and 24
 BUTTONS = [5, 6, 16, 24]
 
@@ -17,11 +19,7 @@ GPIO.setmode(GPIO.BCM)
 # Buttons connect to ground when pressed, so we should set them up
 # with a "PULL UP", which weakly pulls the input signal to 3.3V.
 GPIO.setup(BUTTONS, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-
-# define sound object to play
-pygame.init()
-pygame.mixer.init()
-
+  
 # setup function to customize button time and sounds
 def timer_sound(label, timer, sound):
     '''
@@ -34,7 +32,25 @@ def timer_sound(label, timer, sound):
     '''
     print(f'button {label} pressed, starting timer for {round(timer/60, 2)} minutes')
     # TODO show timer on display..
-    time.sleep(timer)
+    counter, text = timer, str(round(timer/60, 2)).rjust(3)
+    text = font.render(str(timer), True, (0, 128, 0))
+    clock = pygame.time.Clock()
+    timer_event = pygame.USEREVENT+1
+    pygame.time.set_timer(timer_event, 1000)
+    #pygame.time.set_timer(25, 10000)
+    #time.sleep(timer)
+    run = True
+    while run:
+        clock.tick(60)
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                run = False
+            elif event.type == timer_event:
+                counter -= 1
+                text = font.render(str(counter), True, (0, 128, 0))
+                if counter == 0:
+                    pygame.time.set_timer(timer_event, 0)                
+
     print(f'{round(timer/60, 2)} minutes timer finished')
     # TODO customize this further
     sound.play()
@@ -76,6 +92,12 @@ def handle_button(pin):
 if __name__ == '__main__':
     
     print('starting timer script and waiting for button presses')
+    # pygame.init()
+    pygame.mixer.init()
+    pygame.font.init()
+    
+    clock = pygame.time.Clock()
+    font = pygame.font.SysFont('dejavusans', 30)
     
     # Loop through out buttons and attach the "handle_button" function to each
     # We're watching the "FALLING" edge (transition from 3.3V to Ground) and
