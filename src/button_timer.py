@@ -4,8 +4,10 @@ import pygame
 # consider updating to gpiozero
 #  https://gpiozero.readthedocs.io/en/stable/migrating_from_rpigpio.html
 import RPi.GPIO as GPIO
-
-pygame.init()
+import ST7789
+from PIL import Image
+from PIL import ImageDraw
+from PIL import ImageFont
 
 # The buttons on Pirate Audio are connected to pins 5, 6, 16 and 24
 BUTTONS = [5, 6, 16, 24]
@@ -19,7 +21,65 @@ GPIO.setmode(GPIO.BCM)
 # Buttons connect to ground when pressed, so we should set them up
 # with a "PULL UP", which weakly pulls the input signal to 3.3V.
 GPIO.setup(BUTTONS, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-  
+
+# setup display stuff
+# https://learn.adafruit.com/adafruit-1-14-240x135-color-tft-breakout/python-usage
+disp = ST7789.ST7789(
+        height=240,
+        width=320,
+        rotation=180,
+        port=0,
+        cs=1,
+        dc=9,
+        backlight=13,
+        spi_speed_hz=60 * 1000 * 1000,
+        offset_left=0,
+        offset_top=0
+   )
+
+def clear_display(disp):
+    '''
+    just clear display,
+    return updated img
+    '''
+    # create blank image for drawing
+    img = Image.new('RGB', (disp.width, disp.height), color=(0, 0, 0))
+    # create object to draw on image
+    draw = ImageDraw.Draw(img)
+    # draw black rectangle on img
+    draw.rectangle((0, 0, disp.width, disp.height), (0, 0, 0))
+    # update the display
+    disp.display(img)
+    
+    return img, draw
+
+def draw_text(disp, counter):
+    '''
+    '''
+    # convert counter to str
+    counter = str(counter)
+
+    # define font
+    font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", 100)
+    # get the size of the text
+    (font_width, font_height) = font.getsize(counter)
+    
+    img, draw = clear_display(disp)
+    
+    # draw the text
+    draw.text(
+        (disp.width // 2 - font_width // 2, disp.height // 2 - font_height // 2),
+        counter,
+        font=font,
+        align='center',
+        fill=(255, 255, 0),
+    )
+    # rotate text (actually entire img)
+    img = img.rotate(-90, expand=0)
+    # update the display
+    disp.display(img)
+    
+    
 # setup function to customize button time and sounds
 def timer_sound(label, timer, sound):
     '''
@@ -32,29 +92,27 @@ def timer_sound(label, timer, sound):
     '''
     print(f'button {label} pressed, starting timer for {round(timer/60, 2)} minutes')
     # TODO show timer on display..
-    counter, text = timer, str(round(timer/60, 2)).rjust(3)
-    text = font.render(str(timer), True, (0, 128, 0))
-    clock = pygame.time.Clock()
-    timer_event = pygame.USEREVENT+1
-    pygame.time.set_timer(timer_event, 1000)
-    #pygame.time.set_timer(25, 10000)
+    # Initialize display.
+    disp.begin()
+    print('display initialized')
+    
+    # start countdown and display seconds remaining, update each second
+    counter = timer
+    draw_text(disp, counter)
+    
+    while counter > 0:
+        counter -= 1
+        pygame.time.delay(1000)
+        draw_text(disp, counter)
+        
     #time.sleep(timer)
-    run = True
-    while run:
-        clock.tick(60)
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                run = False
-            elif event.type == timer_event:
-                counter -= 1
-                text = font.render(str(counter), True, (0, 128, 0))
-                if counter == 0:
-                    pygame.time.set_timer(timer_event, 0)                
-
+    
     print(f'{round(timer/60, 2)} minutes timer finished')
+    img, draw = clear_display(disp)
+    
     # TODO customize this further
     sound.play()
-        
+    
     return True
     
     
@@ -92,12 +150,13 @@ def handle_button(pin):
 if __name__ == '__main__':
     
     print('starting timer script and waiting for button presses')
-    # pygame.init()
+    # initialize things
+    pygame.init()
     pygame.mixer.init()
     pygame.font.init()
     
-    clock = pygame.time.Clock()
-    font = pygame.font.SysFont('dejavusans', 30)
+    disp.begin()
+    img, draw = clear_display(disp)
     
     # Loop through out buttons and attach the "handle_button" function to each
     # We're watching the "FALLING" edge (transition from 3.3V to Ground) and
