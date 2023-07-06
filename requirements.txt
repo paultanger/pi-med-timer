@@ -1,3 +1,9 @@
+# update virtual env using:
+# pip install -r ~/github/pi-med-timer/requirements.txt
 RPi.GPIO
 pygame
 ipython
+st7789
+numpy
+spidev
+pillow==9.5.0

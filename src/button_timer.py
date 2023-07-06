@@ -8,6 +8,7 @@ import ST7789
 from PIL import Image
 from PIL import ImageDraw
 from PIL import ImageFont
+# from pillow import Image, ImageDraw, ImageFont
 
 # The buttons on Pirate Audio are connected to pins 5, 6, 16 and 24
 BUTTONS = [5, 6, 16, 24]
