@@ -31,7 +31,9 @@ disp = ST7789.ST7789(
         port=0,
         cs=1,
         dc=9,
-        backlight=13,
+        backlight=13, # this is just the pin
+        # TODO: dim backlight..
+        # https://github.com/Wikinaut/pinetradio/blob/main/backlight-pwm-and-audio.py
         spi_speed_hz=60 * 1000 * 1000,
         offset_left=0,
         offset_top=0
@@ -53,14 +55,14 @@ def clear_display(disp):
     
     return img, draw
 
-def draw_text(disp, counter):
+def draw_text(disp, counter, font_size=90, rotation=-90):
     '''
     '''
     # convert counter to str
     counter = str(counter)
 
     # define font
-    font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", 100)
+    font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", font_size)
     # get the size of the text
     (font_width, font_height) = font.getsize(counter)
     
@@ -72,11 +74,12 @@ def draw_text(disp, counter):
         counter,
         font=font,
         align='center',
-        fill=(255, 255, 0),
+        fill=(220, 20, 60),
     )
     # rotate text (actually entire img)
-    img = img.rotate(-90, expand=0)
+    img = img.rotate(rotation, expand=0)
     # update the display
+    disp.set_backlight(1)
     disp.display(img)
     
     
@@ -96,13 +99,13 @@ def timer_sound(label, timer, sound):
     disp.begin()
     print('display initialized')
     
-    # start countdown and display seconds remaining, update each second
+    # start countdown and display seconds remaining, update every 5 seconds
     counter = timer
     draw_text(disp, counter)
     
     while counter > 0:
-        counter -= 1
-        pygame.time.delay(1000)
+        counter -= 5
+        pygame.time.delay(5000)
         draw_text(disp, counter)
         
     #time.sleep(timer)
@@ -112,6 +115,8 @@ def timer_sound(label, timer, sound):
     
     # TODO customize this further
     sound.play()
+    # turn off backlight
+    disp.set_backlight(0)
     
     return True
     
@@ -125,24 +130,26 @@ def handle_button(pin):
     label = LABELS[BUTTONS.index(pin)]
     #print(f'Button press detected on pin: {pin} label: {label}')
     
+    sound = pygame.mixer.Sound('/home/pi/Music/bowl_2.mp3')
+    
     if label == 'A':
         # setup sound
-        sound = pygame.mixer.Sound('/home/pi/Music/bowl_1.mp3')
+        # sound = pygame.mixer.Sound('/home/pi/Music/Gong-sound.mp3')
         # test with 15 second timer
         timer_sound(label, 15, sound)
     if label == 'B':
         # setup sound
-        sound = pygame.mixer.Sound('/home/pi/Music/bowl_1.mp3')
+        # sound = pygame.mixer.Sound('/home/pi/Music/bowl_1.mp3')
         # 10 min timer
         timer_sound(label, 10*60, sound)
     if label == 'X':
         # setup sound
-        sound = pygame.mixer.Sound('/home/pi/Music/bowl_1.mp3')
+        # sound = pygame.mixer.Sound('/home/pi/Music/bowl_1.mp3')
         # 16 min timer
         timer_sound(label, 16*60, sound)
     if label == 'Y':
         # setup sound
-        sound = pygame.mixer.Sound('/home/pi/Music/bowl_1.mp3')
+        # sound = pygame.mixer.Sound('/home/pi/Music/bowl_1.mp3')
         # 30 min timer
         timer_sound(label, 30*60, sound)
 
@@ -157,6 +164,12 @@ if __name__ == '__main__':
     
     disp.begin()
     img, draw = clear_display(disp)
+
+    # tell user we are ready
+    draw_text(disp, 'ready!', font_size=50)
+    time.sleep(1)
+    # turn off backlight
+    disp.set_backlight(0)
     
     # Loop through out buttons and attach the "handle_button" function to each
     # We're watching the "FALLING" edge (transition from 3.3V to Ground) and
