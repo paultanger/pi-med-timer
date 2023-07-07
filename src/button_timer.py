@@ -8,7 +8,10 @@ import ST7789
 from PIL import Image
 from PIL import ImageDraw
 from PIL import ImageFont
-# from pillow import Image, ImageDraw, ImageFont
+
+# TODO: improvements: auto shutdown after a couple hours if not used
+# TODO: improvements: don't allow another action if timer already in progress   
+# TODO: customize buttons to program different times etc..
 
 # The buttons on Pirate Audio are connected to pins 5, 6, 16 and 24
 BUTTONS = [5, 6, 16, 24]
@@ -40,6 +43,7 @@ disp = ST7789.ST7789(
         offset_top=0
    )
 
+
 def clear_display(disp):
     '''
     just clear display,
@@ -55,6 +59,7 @@ def clear_display(disp):
     disp.display(img)
     
     return img, draw
+
 
 def draw_text(disp, counter, font_size=90, rotation=-90):
     '''
