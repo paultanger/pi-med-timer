@@ -12,6 +12,7 @@ from PIL import ImageFont
 # TODO: improvements: auto shutdown after a couple hours if not used
 # TODO: improvements: don't allow another action if timer already in progress   
 # TODO: customize buttons to program different times etc..
+# TODO: add pause / resume button
 
 # The buttons on Pirate Audio are connected to pins 5, 6, 16 and 24
 BUTTONS = [5, 6, 16, 24]
