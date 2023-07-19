@@ -1,0 +1,20 @@
+#!/bin/sh -e
+#
+# rc.local
+# 
+# example script to run meditation timer on startup..
+exec 1>/etc/python_log_files/rclocal.log 2>&1
+
+# some weird setting we may need
+# Set the necessary environment variables
+export XDG_RUNTIME_DIR="/run/user/$(id -u root)"
+
+# start button response script for meditation timer
+printf '%s %s starting button script from rc.local\n' "$(date)"
+# activate virtualenv
+. /home/pi/.virtualenvs/pi-med-timer-env/bin/activate
+# start script
+python /home/pi/github/pi-med-timer/src/button_timer.py >> /etc/python_log_files/timer_log.log 2>&1
+printf "button response script running"
+
+exit 0
