@@ -134,6 +134,9 @@ def handle_button(pin):
     inputs:
     the associated input pin
     '''
+    # test to avoid multiple button detections?
+    # sleep(0.3)
+    
     label = LABELS[BUTTONS.index(pin)]
     #print(f'Button press detected on pin: {pin} label: {label}')
     
@@ -182,7 +185,7 @@ if __name__ == '__main__':
     # We're watching the "FALLING" edge (transition from 3.3V to Ground) and
     # picking a generous bouncetime of 100ms to smooth out button presses.
     for pin in BUTTONS:
-        GPIO.add_event_detect(pin, GPIO.FALLING, handle_button, bouncetime=100)
+        GPIO.add_event_detect(pin, GPIO.FALLING, handle_button, bouncetime=300)
 
     # Finally, since button handlers don't require a "while True" loop,
     # we pause the script to prevent it exiting immediately.
