@@ -15,6 +15,9 @@ from PIL import ImageFont
 # TODO: add volume control
 # TODO: parameterize options
 # TODO: add pause / resume button
+# TODO: button that just remembers what you did last time (part of a bigger improvement:
+# TODO: button to increase or decrease time by 5 mins
+# TODO: option to ring every 10 mins or something
 
 # The buttons on Pirate Audio are connected to pins 5, 6, 16 and 24
 BUTTONS = [5, 6, 16, 24]
